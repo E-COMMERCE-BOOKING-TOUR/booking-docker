@@ -1,0 +1,54 @@
+services:
+  backend:
+    build:
+      context: ../backend-booking-tour
+      dockerfile: Dockerfile.dev
+    ports:
+      - "4000:3000"
+    volumes:
+      - ../backend-booking-tour:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - DB_DATABASE=booking_tour
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ../booking-nextjs
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../booking-nextjs:/app
+      - /app/node_modules
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
+      - API_BACKEND_CONTAINER=http://backend:3000/api/v1
+    networks:
+      - app-network
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=booking_tour
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
