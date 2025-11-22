@@ -17,6 +17,8 @@ services:
       - DB_USERNAME=root
       - DB_PASSWORD=root
       - DB_DATABASE=booking_tour
+      - ARTICLE_SERVICE_HOST=social-network
+      - ARTICLE_SERVICE_PORT=3001
     networks:
       - app-network
 
@@ -48,9 +50,37 @@ services:
     networks:
       - app-network
 
+  social-network:
+    build:
+      context: ../social-network
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    restart: always
+    volumes:
+      - ../social-network:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/social_network
+      - PORT=3001
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
 
 volumes:
   mysql-data:
+  mongo-data:
