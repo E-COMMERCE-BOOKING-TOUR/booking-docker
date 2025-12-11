@@ -1,5 +1,6 @@
 services:
   backend:
+    container_name: backend
     build:
       context: ../backend-booking-tour
       dockerfile: Dockerfile.dev
@@ -23,6 +24,7 @@ services:
       - app-network
 
   frontend:
+    container_name: frontend
     build:
       context: ../booking-nextjs
       dockerfile: Dockerfile.dev
@@ -39,6 +41,7 @@ services:
       - app-network
 
   mysql:
+    container_name: mysql
     image: mysql:8.0
     ports:
       - "3306:3306"
@@ -51,6 +54,7 @@ services:
       - app-network
 
   social-network:
+    container_name: social-network
     build:
       context: ../social-network
       dockerfile: Dockerfile
@@ -69,6 +73,7 @@ services:
       - app-network
 
   mongo:
+    container_name: mongo
     image: mongo:latest
     ports:
       - "27017:27017"
