@@ -12,6 +12,7 @@ services:
       - /usr/src/app/node_modules
     depends_on:
       - mysql
+      - redis
     environment:
       - APP_ENV=${APP_ENV}
       - APP_TIMEZONE=${APP_TIMEZONE}
@@ -22,6 +23,8 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE=${DB_DATABASE}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
       - ARTICLE_SERVICE_HOST=${ARTICLE_SERVICE_HOST}
       - ARTICLE_SERVICE_PORT=${ARTICLE_SERVICE_PORT}
       - BCRYPT_ROUNDS=${BCRYPT_ROUNDS}
@@ -99,6 +102,16 @@ services:
     networks:
       - app-network
 
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
@@ -106,3 +119,4 @@ networks:
 volumes:
   mysql-data:
   mongo-data:
+  redis-data:
