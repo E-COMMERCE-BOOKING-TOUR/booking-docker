@@ -38,6 +38,8 @@ services:
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
       - CHATBOX_HOST=${CHATBOX_HOST}
       - CHATBOX_PORT=${CHATBOX_PORT}
+      - MAILER_DSN=${MAILER_DSN}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
     networks:
       - app-network
 
