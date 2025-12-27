@@ -91,6 +91,25 @@ services:
       - PORT=${ARTICLE_SERVICE_PORT}
     networks:
       - app-network
+    
+  chatbox:
+    container_name: chatbox
+    build:
+      context: ../chatbox-module
+      dockerfile: Dockerfile
+    ports:
+      - "${CHATBOX_PORT}:${CHATBOX_PORT}"
+    restart: always
+    volumes:
+      - ../chatbox-module:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - PORT=${CHATBOX_PORT}
+    networks:
+      - app-network
 
   mongo:
     container_name: mongo
