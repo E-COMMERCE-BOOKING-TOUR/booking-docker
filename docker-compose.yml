@@ -59,6 +59,7 @@ services:
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
       - NEXT_PUBLIC_API_BACKEND=${NEXT_PUBLIC_API_URL}
       - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+      - NEXT_PUBLIC_CHATBOX_WS_URL=${NEXT_PUBLIC_CHATBOX_WS_URL}
     networks:
       - app-network
 
@@ -110,6 +111,8 @@ services:
     environment:
       - MONGODB_URI=${MONGODB_URI}
       - PORT=${CHATBOX_PORT}
+      - CHATBOX_TCP_PORT=${CHATBOX_TCP_PORT}
+      - JWT_SECRET_PRIVATEKEY=${JWT_SECRET_PRIVATEKEY}
     networks:
       - app-network
 
