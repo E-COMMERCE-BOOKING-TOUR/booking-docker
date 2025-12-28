@@ -40,6 +40,8 @@ services:
       - CHATBOX_PORT=${CHATBOX_PORT}
       - MAILER_DSN=${MAILER_DSN}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - RECOMMEND_SERVICE_HOST=${RECOMMEND_SERVICE_HOST}
+      - RECOMMEND_SERVICE_PORT=${RECOMMEND_SERVICE_PORT}
     networks:
       - app-network
 
@@ -135,6 +137,38 @@ services:
       - "${REDIS_PORT}:6379"
     volumes:
       - redis-data:/data
+    networks:
+      - app-network
+
+  recommend-service:
+    container_name: recommend-service
+    build:
+      context: ../recommend-module
+      dockerfile: Dockerfile
+    ports:
+      - "${RECOMMEND_SERVICE_PORT}:${RECOMMEND_SERVICE_PORT}"
+    restart: always
+    volumes:
+      - ../recommend-module:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - PORT=${RECOMMEND_SERVICE_PORT}
+    networks:
+      - app-network
+
+  python-ai-service:
+    container_name: python-ai-service
+    build:
+      context: ../python-ai-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    restart: always
+    volumes:
+      - ../python-ai-service:/usr/src/app
     networks:
       - app-network
 
