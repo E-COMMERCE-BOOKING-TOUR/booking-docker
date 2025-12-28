@@ -1,4 +1,5 @@
 .env.*
 !.env.example
+!.env.production.example
 /mysql/*
 /redis-data/*
