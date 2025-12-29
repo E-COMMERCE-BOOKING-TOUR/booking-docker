@@ -42,6 +42,8 @@ services:
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
       - RECOMMEND_SERVICE_HOST=${RECOMMEND_SERVICE_HOST}
       - RECOMMEND_SERVICE_PORT=${RECOMMEND_SERVICE_PORT}
+      - CHATBOX_TCP_PORT=${CHATBOX_TCP_PORT}
+      - RECOMMEND_TCP_PORT=${RECOMMEND_SERVICE_PORT}
     networks:
       - app-network
 
@@ -155,7 +157,8 @@ services:
       - mongo
     environment:
       - MONGODB_URI=${MONGODB_URI}
-      - PORT=${RECOMMEND_SERVICE_PORT}
+      - PORT=8865
+      - RECOMMEND_TCP_PORT=${RECOMMEND_SERVICE_PORT}
     networks:
       - app-network
 
