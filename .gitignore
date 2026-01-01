@@ -3,3 +3,4 @@
 !.env.production.example
 /mysql/*
 /redis-data/*
+.env

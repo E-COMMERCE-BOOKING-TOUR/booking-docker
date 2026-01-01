@@ -1,0 +1,185 @@
+services:
+  backend:
+    container_name: backend
+    build:
+      context: ../base-backend-api
+      dockerfile: Dockerfile.dev
+    ports:
+      - "4000:3000"
+    restart: always
+    volumes:
+      - ../base-backend-api:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - APP_ENV=${APP_ENV}
+      - APP_TIMEZONE=${APP_TIMEZONE}
+      - DB_CONNECTION=${DB_CONNECTION}
+      - APP_PORT=${APP_PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - ARTICLE_SERVICE_HOST=${ARTICLE_SERVICE_HOST}
+      - ARTICLE_SERVICE_PORT=${ARTICLE_SERVICE_PORT}
+      - BCRYPT_ROUNDS=${BCRYPT_ROUNDS}
+      - JWT_SECRET_PRIVATEKEY=${JWT_SECRET_PRIVATEKEY}
+      - JWT_REFRESH_TOKEN_SECRET=${JWT_REFRESH_TOKEN_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - JWT_REFRESH_TOKEN_EXPIRES_IN=${JWT_REFRESH_TOKEN_EXPIRES_IN}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - CHATBOX_HOST=${CHATBOX_HOST}
+      - CHATBOX_PORT=${CHATBOX_PORT}
+      - MAILER_DSN=${MAILER_DSN}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - RECOMMEND_SERVICE_HOST=${RECOMMEND_SERVICE_HOST}
+      - RECOMMEND_SERVICE_PORT=${RECOMMEND_SERVICE_PORT}
+      - CHATBOX_TCP_PORT=${CHATBOX_TCP_PORT}
+      - RECOMMEND_TCP_PORT=${RECOMMEND_SERVICE_PORT}
+    networks:
+      - app-network
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ../booking-nextjs
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    restart: always
+    volumes:
+      - ../booking-nextjs:/app
+      - /app/node_modules
+    environment:
+      - AUTH_SECRET=${AUTH_SECRET}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - API_BACKEND_CONTAINER=${API_BACKEND_CONTAINER}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - NEXT_PUBLIC_API_BACKEND=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+      - NEXT_PUBLIC_CHATBOX_WS_URL=${NEXT_PUBLIC_CHATBOX_WS_URL}
+    networks:
+      - app-network
+
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  social-network:
+    container_name: social-network
+    build:
+      context: ../booking-social-service
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    restart: always
+    volumes:
+      - ../booking-social-service:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - PORT=${ARTICLE_SERVICE_PORT}
+    networks:
+      - app-network
+    
+  chatbox:
+    container_name: chatbox
+    build:
+      context: ../chatbox-module
+      dockerfile: Dockerfile
+    ports:
+      - "${CHATBOX_PORT}:${CHATBOX_PORT}"
+    restart: always
+    volumes:
+      - ../chatbox-module:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - PORT=${CHATBOX_PORT}
+      - CHATBOX_TCP_PORT=${CHATBOX_TCP_PORT}
+      - JWT_SECRET_PRIVATEKEY=${JWT_SECRET_PRIVATEKEY}
+    networks:
+      - app-network
+
+  mongo:
+    container_name: mongo
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+
+  recommend-service:
+    container_name: recommend-service
+    build:
+      context: ../recommend-module
+      dockerfile: Dockerfile
+    ports:
+      - "${RECOMMEND_SERVICE_PORT}:${RECOMMEND_SERVICE_PORT}"
+    restart: always
+    volumes:
+      - ../recommend-module:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - PORT=8865
+      - RECOMMEND_TCP_PORT=${RECOMMEND_SERVICE_PORT}
+    networks:
+      - app-network
+
+  python-ai-service:
+    container_name: python-ai-service
+    build:
+      context: ../python-ai-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    restart: always
+    volumes:
+      - ../python-ai-service:/usr/src/app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  mongo-data:
+  redis-data:
