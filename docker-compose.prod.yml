@@ -1,0 +1,181 @@
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:alpine
+    ports:
+      - "${NGINX_PORT:-80}:${NGINX_PORT:-80}"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+      - chatbox
+    networks:
+      - app-network
+    restart: always
+
+  backend:
+    container_name: backend
+    build:
+      context: ../base-backend-api
+      dockerfile: Dockerfile.prod
+    restart: always
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - APP_ENV=production
+      - DB_CONNECTION=${DB_CONNECTION}
+      - DB_HOST=${DB_HOST:-mysql}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - APP_PORT=${APP_PORT:-3000}
+      - APP_TIMEZONE=${APP_TIMEZONE}
+      - BCRYPT_ROUNDS=${BCRYPT_ROUNDS}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - ARTICLE_SERVICE_HOST=${SOCIAL_HOST:-social-network}
+      - ARTICLE_SERVICE_PORT=${SOCIAL_PORT:-3001}
+      - CHATBOX_HOST=${CHATBOX_HOST:-chatbox}
+      - CHATBOX_TCP_PORT=${CHATBOX_TCP_PORT:-3003}
+      - JWT_SECRET_PRIVATEKEY=${JWT_SECRET_PRIVATEKEY}
+      - JWT_REFRESH_TOKEN_SECRET=${JWT_REFRESH_TOKEN_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - JWT_REFRESH_TOKEN_EXPIRES_IN=${JWT_REFRESH_TOKEN_EXPIRES_IN}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - MAILER_DSN=${MAILER_DSN}
+      - RECOMMEND_SERVICE_HOST=${RECOMMEND_HOST:-recommend-service}
+      - RECOMMEND_SERVICE_PORT=${RECOMMEND_TCP_PORT:-8866}
+    networks:
+      - app-network
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ../booking-nextjs
+      dockerfile: Dockerfile.prod
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+        - API_BACKEND_CONTAINER=${API_BACKEND_CONTAINER}
+        - NEXT_PUBLIC_API_BACKEND=${NEXT_PUBLIC_API_URL}
+        - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+        - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+        - NEXT_PUBLIC_CHATBOX_WS_URL=${NEXT_PUBLIC_CHATBOX_WS_URL}
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - AUTH_SECRET=${AUTH_SECRET}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - API_BACKEND_CONTAINER=${API_BACKEND_CONTAINER}
+      - NEXT_PUBLIC_API_BACKEND=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+      - NEXT_PUBLIC_CHATBOX_WS_URL=${NEXT_PUBLIC_CHATBOX_WS_URL}
+      - AUTH_URL=${NEXT_PUBLIC_APP_URL}/api/auth
+    networks:
+      - app-network
+
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  social-network:
+    container_name: social-network
+    build:
+      context: ../booking-social-service
+      dockerfile: Dockerfile.prod
+    restart: always
+    depends_on:
+      - mongo
+    environment:
+      - APP_ENV=production
+      - MONGODB_URI=${MONGODB_URI}
+      - PORT=${SOCIAL_PORT:-3001}
+    networks:
+      - app-network
+    
+  chatbox:
+    container_name: chatbox
+    build:
+      context: ../chatbox-module
+      dockerfile: Dockerfile.prod
+    restart: always
+    depends_on:
+      - mongo
+    environment:
+      - APP_ENV=production
+      - MONGODB_URI=${MONGODB_URI}
+      - PORT=${CHATBOX_PORT:-3002}
+      - CHATBOX_TCP_PORT=${CHATBOX_TCP_PORT:-3003}
+      - JWT_SECRET_PRIVATEKEY=${JWT_SECRET_PRIVATEKEY}
+      - AI_SERVICE_HOST=${AI_HOST:-python-ai-service}
+      - AI_SERVICE_PORT=${AI_PORT:-8000}
+    networks:
+      - app-network
+
+  mongo:
+    container_name: mongo
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+
+  recommend-service:
+    container_name: recommend-service
+    build:
+      context: ../recommend-module
+      dockerfile: Dockerfile.prod
+    restart: always
+    depends_on:
+      - mongo
+    environment:
+      - APP_ENV=production
+      - MONGODB_URI=${MONGODB_URI}
+      - PORT=${RECOMMEND_PORT:-8865}
+      - RECOMMEND_TCP_PORT=${RECOMMEND_TCP_PORT:-8866}
+    networks:
+      - app-network
+
+  python-ai-service:
+    container_name: python-ai-service
+    build:
+      context: ../python-ai-service
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  mongo-data:
+  redis-data:
