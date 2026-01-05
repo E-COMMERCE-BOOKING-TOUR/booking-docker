@@ -31,12 +31,12 @@ jobs:
             
             if [ "${{ github.event.client_payload.service }}" != "" ]; then
               echo "Updating specific service: ${{ github.event.client_payload.service }}"
-              docker compose -f docker-compose.prod.yml pull ${{ github.event.client_payload.service }} || true
-              docker compose -f docker-compose.prod.yml up -d --remove-orphans ${{ github.event.client_payload.service }}
+              docker compose -f docker-compose.prod.yml --env-file .env.prod pull ${{ github.event.client_payload.service }} || true
+              docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --remove-orphans ${{ github.event.client_payload.service }}
             else
               echo "Updating all services"
-              docker compose -f docker-compose.prod.yml pull || true
-              docker compose -f docker-compose.prod.yml up -d --remove-orphans
+              docker compose -f docker-compose.prod.yml --env-file .env.prod pull || true
+              docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --remove-orphans
             fi
             
             # Clean up dangling images but don't fail if prune is locked
