@@ -168,6 +168,9 @@ services:
       context: ../python-ai-service
       dockerfile: Dockerfile
     restart: always
+    volumes:
+      # link model in production
+      - /home/chinhdev/docker/models/qwen2.5-1.5b-tour-assistant-q4.gguf:/usr/src/app/model/qwen2.5-1.5b-tour-assistant-q4.gguf:ro
     networks:
       - app-network
 
