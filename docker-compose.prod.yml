@@ -16,9 +16,7 @@ services:
 
   backend:
     container_name: backend
-    build:
-      context: ../base-backend-api
-      dockerfile: Dockerfile.prod
+    image: ghcr.io/e-commerce-booking-tour/base-backend-api:latest
     restart: always
     depends_on:
       - mysql
@@ -56,16 +54,7 @@ services:
 
   frontend:
     container_name: frontend
-    build:
-      context: ../booking-nextjs
-      dockerfile: Dockerfile.prod
-      args:
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-        - API_BACKEND_CONTAINER=${API_BACKEND_CONTAINER}
-        - NEXT_PUBLIC_API_BACKEND=${NEXT_PUBLIC_API_URL}
-        - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
-        - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
-        - NEXT_PUBLIC_CHATBOX_WS_URL=${NEXT_PUBLIC_CHATBOX_WS_URL}
+    image: ghcr.io/e-commerce-booking-tour/booking-nextjs:latest
     restart: always
     environment:
       - NODE_ENV=production
@@ -96,9 +85,7 @@ services:
 
   social-network:
     container_name: social-network
-    build:
-      context: ../booking-social-service
-      dockerfile: Dockerfile.prod
+    image: ghcr.io/e-commerce-booking-tour/booking-social-service:latest
     restart: always
     depends_on:
       - mongo
@@ -111,9 +98,7 @@ services:
     
   chatbox:
     container_name: chatbox
-    build:
-      context: ../chatbox-module
-      dockerfile: Dockerfile.prod
+    image: ghcr.io/e-commerce-booking-tour/chatbox-module:latest
     restart: always
     depends_on:
       - mongo
@@ -148,9 +133,7 @@ services:
 
   recommend-service:
     container_name: recommend-service
-    build:
-      context: ../recommend-module
-      dockerfile: Dockerfile.prod
+    image: ghcr.io/e-commerce-booking-tour/recommend-module:latest
     restart: always
     depends_on:
       - mongo
@@ -164,9 +147,7 @@ services:
 
   python-ai-service:
     container_name: python-ai-service
-    build:
-      context: ../python-ai-service
-      dockerfile: Dockerfile
+    image: ghcr.io/e-commerce-booking-tour/python-ai-service:latest
     restart: always
     volumes:
       # link model in production

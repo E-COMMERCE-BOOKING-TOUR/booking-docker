@@ -23,7 +23,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ${{ secrets.SSH_PATH }}
-            git pull origin main
+            git pull origin master
             
             if [ "${{ github.event.client_payload.service }}" != "" ]; then
               echo "Updating specific service: ${{ github.event.client_payload.service }}"
