@@ -22,8 +22,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            if [ -n "${{ secrets.PAT_TOKEN }}" ]; then
-              echo "${{ secrets.PAT_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+            if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+              echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
             fi
             cd ${{ secrets.SSH_PATH }}
             git pull origin master

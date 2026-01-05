@@ -16,7 +16,7 @@ services:
 
   backend:
     container_name: backend
-    image: ghcr.io/e-commerce-booking-tour/base-backend-api:latest
+    image: ${DOCKERHUB_NAMESPACE:-chinhps}/base-backend-api:latest
     restart: always
     depends_on:
       - mysql
@@ -54,7 +54,7 @@ services:
 
   frontend:
     container_name: frontend
-    image: ghcr.io/e-commerce-booking-tour/booking-nextjs:latest
+    image: ${DOCKERHUB_NAMESPACE:-chinhps}/booking-nextjs:latest
     restart: always
     environment:
       - NODE_ENV=production
@@ -85,7 +85,7 @@ services:
 
   social-network:
     container_name: social-network
-    image: ghcr.io/e-commerce-booking-tour/booking-social-service:latest
+    image: ${DOCKERHUB_NAMESPACE:-chinhps}/booking-social-service:latest
     restart: always
     depends_on:
       - mongo
@@ -98,7 +98,7 @@ services:
     
   chatbox:
     container_name: chatbox
-    image: ghcr.io/e-commerce-booking-tour/chatbox-module:latest
+    image: ${DOCKERHUB_NAMESPACE:-chinhps}/chatbox-module:latest
     restart: always
     depends_on:
       - mongo
@@ -133,7 +133,7 @@ services:
 
   recommend-service:
     container_name: recommend-service
-    image: ghcr.io/e-commerce-booking-tour/recommend-module:latest
+    image: ${DOCKERHUB_NAMESPACE:-chinhps}/recommend-module:latest
     restart: always
     depends_on:
       - mongo
@@ -147,7 +147,7 @@ services:
 
   python-ai-service:
     container_name: python-ai-service
-    image: ghcr.io/e-commerce-booking-tour/python-ai-service:latest
+    image: ${DOCKERHUB_NAMESPACE:-chinhps}/python-ai-service:latest
     restart: always
     volumes:
       # link model in production
