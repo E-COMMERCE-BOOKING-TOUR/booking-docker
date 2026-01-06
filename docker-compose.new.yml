@@ -14,19 +14,19 @@ services:
       - mysql
       - redis
     environment:
-      - APP_ENV=${APP_ENV}
+      - APP_ENV=development
       - APP_TIMEZONE=${APP_TIMEZONE}
       - DB_CONNECTION=${DB_CONNECTION}
-      - APP_PORT=${APP_PORT}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
+      - APP_PORT=${APP_PORT:-3000}
+      - DB_HOST=${DB_HOST:-mysql}
+      - DB_PORT=${DB_PORT:-3306}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE=${DB_DATABASE}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - ARTICLE_SERVICE_HOST=${ARTICLE_SERVICE_HOST}
-      - ARTICLE_SERVICE_PORT=${ARTICLE_SERVICE_PORT}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - ARTICLE_SERVICE_HOST=${ARTICLE_SERVICE_HOST:-social-network}
+      - ARTICLE_SERVICE_PORT=${ARTICLE_SERVICE_PORT:-3001}
       - BCRYPT_ROUNDS=${BCRYPT_ROUNDS}
       - JWT_SECRET_PRIVATEKEY=${JWT_SECRET_PRIVATEKEY}
       - JWT_REFRESH_TOKEN_SECRET=${JWT_REFRESH_TOKEN_SECRET}
@@ -36,14 +36,11 @@ services:
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-      - CHATBOX_HOST=${CHATBOX_HOST}
-      - CHATBOX_PORT=${CHATBOX_PORT}
+      - CHATBOX_HOST=${CHATBOX_HOST:-chatbox}
+      - CHATBOX_TCP_PORT=${CHATBOX_TCP_PORT:-3003}
       - MAILER_DSN=${MAILER_DSN}
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
-      - RECOMMEND_SERVICE_HOST=${RECOMMEND_SERVICE_HOST}
-      - RECOMMEND_SERVICE_PORT=${RECOMMEND_SERVICE_PORT}
-      - CHATBOX_TCP_PORT=${CHATBOX_TCP_PORT}
-      - RECOMMEND_TCP_PORT=${RECOMMEND_SERVICE_PORT}
+      - RECOMMEND_SERVICE_HOST=${RECOMMEND_SERVICE_HOST:-recommend-service}
+      - RECOMMEND_SERVICE_PORT=${RECOMMEND_SERVICE_PORT:-8866}
     networks:
       - app-network
 
@@ -58,14 +55,17 @@ services:
     volumes:
       - ../booking-nextjs:/app
       - /app/node_modules
+      - /app/.next
     environment:
+      - NODE_ENV=development
       - AUTH_SECRET=${AUTH_SECRET}
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-      - API_BACKEND_CONTAINER=${API_BACKEND_CONTAINER}
+      - API_BACKEND_CONTAINER=${API_BACKEND_CONTAINER:-http://backend:3000}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
       - NEXT_PUBLIC_API_BACKEND=${NEXT_PUBLIC_API_URL}
       - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
       - NEXT_PUBLIC_CHATBOX_WS_URL=${NEXT_PUBLIC_CHATBOX_WS_URL}
+      - AUTH_URL=${NEXT_PUBLIC_APP_URL}/api/auth
     networks:
       - app-network
 
@@ -96,8 +96,9 @@ services:
     depends_on:
       - mongo
     environment:
+      - APP_ENV=development
       - MONGODB_URI=${MONGODB_URI}
-      - PORT=${ARTICLE_SERVICE_PORT}
+      - PORT=${ARTICLE_SERVICE_PORT:-3001}
     networks:
       - app-network
     
@@ -107,7 +108,7 @@ services:
       context: ../chatbox-module
       dockerfile: Dockerfile
     ports:
-      - "${CHATBOX_PORT}:${CHATBOX_PORT}"
+      - "${CHATBOX_PORT:-3002}:${CHATBOX_PORT:-3002}"
     restart: always
     volumes:
       - ../chatbox-module:/app
@@ -115,10 +116,13 @@ services:
     depends_on:
       - mongo
     environment:
+      - APP_ENV=development
       - MONGODB_URI=${MONGODB_URI}
-      - PORT=${CHATBOX_PORT}
-      - CHATBOX_TCP_PORT=${CHATBOX_TCP_PORT}
+      - PORT=${CHATBOX_PORT:-3002}
+      - CHATBOX_TCP_PORT=${CHATBOX_TCP_PORT:-3003}
       - JWT_SECRET_PRIVATEKEY=${JWT_SECRET_PRIVATEKEY}
+      - AI_SERVICE_HOST=${AI_SERVICE_HOST:-python-ai-service}
+      - AI_SERVICE_PORT=${AI_SERVICE_PORT:-8000}
     networks:
       - app-network
 
@@ -136,7 +140,7 @@ services:
     image: redis:alpine
     container_name: redis
     ports:
-      - "${REDIS_PORT}:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis-data:/data
     networks:
@@ -148,7 +152,8 @@ services:
       context: ../recommend-module
       dockerfile: Dockerfile
     ports:
-      - "${RECOMMEND_SERVICE_PORT}:${RECOMMEND_SERVICE_PORT}"
+      - "${RECOMMEND_PORT:-8865}:${RECOMMEND_PORT:-8865}"
+      - "${RECOMMEND_SERVICE_PORT:-8866}:${RECOMMEND_SERVICE_PORT:-8866}"
     restart: always
     volumes:
       - ../recommend-module:/usr/src/app
@@ -156,9 +161,10 @@ services:
     depends_on:
       - mongo
     environment:
+      - APP_ENV=development
       - MONGODB_URI=${MONGODB_URI}
-      - PORT=8865
-      - RECOMMEND_TCP_PORT=${RECOMMEND_SERVICE_PORT}
+      - PORT=${RECOMMEND_PORT:-8865}
+      - RECOMMEND_TCP_PORT=${RECOMMEND_SERVICE_PORT:-8866}
     networks:
       - app-network
 
@@ -172,6 +178,8 @@ services:
     restart: always
     volumes:
       - ../python-ai-service:/usr/src/app
+    environment:
+      - APP_ENV=development
     networks:
       - app-network
 
