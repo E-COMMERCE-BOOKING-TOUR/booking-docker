@@ -4,9 +4,11 @@ services:
     image: nginx:alpine
     platform: linux/arm64
     ports:
-      - "${NGINX_PORT:-80}:${NGINX_PORT:-80}"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${SSL_CERT_PATH:-./nginx/ssl}:/etc/nginx/ssl:ro
     depends_on:
       - frontend
       - backend
