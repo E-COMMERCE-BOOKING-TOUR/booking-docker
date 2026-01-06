@@ -2,6 +2,7 @@ services:
   nginx:
     container_name: nginx
     image: nginx:alpine
+    platform: linux/arm64
     ports:
       - "${NGINX_PORT:-80}:${NGINX_PORT:-80}"
     volumes:
@@ -17,6 +18,7 @@ services:
   backend:
     container_name: backend
     image: ${DOCKERHUB_NAMESPACE:-chinhps}/base-backend-api:latest
+    platform: linux/arm64
     restart: always
     depends_on:
       - mysql
@@ -55,6 +57,7 @@ services:
   frontend:
     container_name: frontend
     image: ${DOCKERHUB_NAMESPACE:-chinhps}/booking-nextjs:latest
+    platform: linux/arm64
     restart: always
     environment:
       - NODE_ENV=production
@@ -72,6 +75,7 @@ services:
   mysql:
     container_name: mysql
     image: mysql:8.0
+    platform: linux/arm64
     restart: always
     ports:
       - "3306:3306"
@@ -86,6 +90,7 @@ services:
   social-network:
     container_name: social-network
     image: ${DOCKERHUB_NAMESPACE:-chinhps}/booking-social-service:latest
+    platform: linux/arm64
     restart: always
     depends_on:
       - mongo
@@ -99,6 +104,7 @@ services:
   chatbox:
     container_name: chatbox
     image: ${DOCKERHUB_NAMESPACE:-chinhps}/chatbox-module:latest
+    platform: linux/arm64
     restart: always
     depends_on:
       - mongo
@@ -116,6 +122,7 @@ services:
   mongo:
     container_name: mongo
     image: mongo:4.4.18
+    platform: linux/arm64
     restart: always
     volumes:
       - mongo-data:/data/db
@@ -125,6 +132,7 @@ services:
   redis:
     image: redis:alpine
     container_name: redis
+    platform: linux/arm64
     restart: always
     volumes:
       - redis-data:/data
@@ -134,6 +142,7 @@ services:
   recommend-service:
     container_name: recommend-service
     image: ${DOCKERHUB_NAMESPACE:-chinhps}/recommend-module:latest
+    platform: linux/arm64
     restart: always
     depends_on:
       - mongo
@@ -148,6 +157,7 @@ services:
   python-ai-service:
     container_name: python-ai-service
     image: ${DOCKERHUB_NAMESPACE:-chinhps}/python-ai-service:latest
+    platform: linux/arm64
     restart: always
     volumes:
       # link model in production
