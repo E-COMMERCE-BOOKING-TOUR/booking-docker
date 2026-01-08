@@ -41,6 +41,7 @@ services:
       - MAILER_DSN=${MAILER_DSN}
       - RECOMMEND_SERVICE_HOST=${RECOMMEND_SERVICE_HOST:-recommend-service}
       - RECOMMEND_SERVICE_PORT=${RECOMMEND_SERVICE_PORT:-8866}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
     networks:
       - app-network
 
